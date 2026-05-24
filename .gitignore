@@ -58,12 +58,9 @@ compile_commands.json
 *.bak
 *.swp
 
-# vcpkg
-vcpkg_installed/
+.vscode/
 
-# debug information files
-*.dwo
+# ignore macOS system files
+.DS_Store
 
-# test output & cache
-Testing/
-.cache/
+results/*.csv
