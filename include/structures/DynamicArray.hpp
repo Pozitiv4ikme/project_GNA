@@ -93,6 +93,15 @@ public:
         return data[index]; // return reference to the element at the given index
     }
 
+    const T &operator[](size_t index) const
+    {
+        if (index < 0 || index >= current_size)
+        {
+            throw std::out_of_range("Index out of range"); // throw exception if index is out of bounds
+        }
+        return data[index];
+    }
+
     // Getters for size and capacity
     size_t size() const { return current_size; }
     size_t capacity() const { return capacity; }
