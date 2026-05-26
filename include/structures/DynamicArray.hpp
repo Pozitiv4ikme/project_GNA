@@ -82,29 +82,16 @@ public:
         data[current_size++] = value;
     }
 
-    // Access element by index with bounds checking
-    T &at(size_t index)
-    {
-        if (index >= current_size)
-        {
-            throw out_of_range("Index out of bounds");
-        }
-        return m_data[index];
-    }
-
-    const T &at(size_t index) const
-    {
-        if (index >= m_size)
-        {
-            throw out_of_range("Index out of bounds");
-        }
-        return m_data[index];
-    }
-
     // return reference to the element at the given index
-    T &operator[](int index) { return data[index]; }
+    T &operator[](int index)
+    {
+        if (index < 0 || index >= current_size)
+        {
+            throw std::out_of_range("Index out of range"); // throw exception if index is out of bounds
+        }
 
-    const T &operator[](size_t index) const { return m_data[index]; }
+        return data[index]; // return reference to the element at the given index
+    }
 
     // Getters for size and capacity
     size_t size() const { return current_size; }

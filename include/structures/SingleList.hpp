@@ -20,6 +20,29 @@ public:
     };
 
     SingleList() : head(nullptr), tail(nullptr), current_size(0) {}
+
+    // Copy constructor
+    SingleList(const SingleList& other) : head(nullptr), tail(nullptr), current_size(0) {
+        Node* current = other.head;
+        while (current != nullptr) {
+            push_back(current->data);
+            current = current->next;
+        }
+    }
+
+    // Assignment operator
+    SingleList& operator=(const SingleList& other) {
+        if (this != &other) {
+            clear();
+            Node* current = other.head;
+            while (current != nullptr) {
+                push_back(current->data);
+                current = current->next;
+            }
+        }
+        return *this;
+    }
+
     ~SingleList()
     {
         Node *current = head; // start from the head of the list
