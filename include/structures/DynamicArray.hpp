@@ -4,15 +4,13 @@
 #include <stdexcept> // standart exceptions
 #include <utility>
 
-using namespace std;
-
 template <typename T>
 class DynamicArray
 {
 private:
     T *data;             // pointer to the begining in memory
-    size_t current_size; // how many elements are now stored
     size_t capacity;     // how much memory is alocated
+    size_t current_size; // how many elements are now stored
 
     // resize to the new capacity
     void resize(size_t new_capacity)
@@ -20,15 +18,15 @@ private:
         T *new_data = new T[new_capacity];
         for (size_t i = 0; i < current_size; ++i)
         {
-            new_data[i] = move(data[i]);
+            new_data[i] = std::move(data[i]);
         }
         delete[] data;
         data = new_data;
-        current_size = new_capacity;
+        capacity = new_capacity;
     }
 
 public:
-    DynamicArray() : data(nullptr), current_size(0), capacity(0) {}
+    DynamicArray() : data(nullptr), capacity(0), current_size(0) {}
 
     // constructor with initial size
     explicit DynamicArray(size_t initial_size)
@@ -83,9 +81,9 @@ public:
     }
 
     // return reference to the element at the given index
-    T &operator[](int index)
+    T &operator[](size_t index)
     {
-        if (index < 0 || index >= current_size)
+        if (index >= current_size)
         {
             throw std::out_of_range("Index out of range"); // throw exception if index is out of bounds
         }
@@ -95,7 +93,7 @@ public:
 
     const T &operator[](size_t index) const
     {
-        if (index < 0 || index >= current_size)
+        if (index >= current_size)
         {
             throw std::out_of_range("Index out of range"); // throw exception if index is out of bounds
         }
@@ -103,8 +101,9 @@ public:
     }
 
     // Getters for size and capacity
-    size_t size() const { return current_size; }
-    size_t capacity() const { return capacity; }
+    size_t size() const { 
+        return current_size;
+    }
 
     // Resets the logical size to 0
     void clear() { current_size = 0; }

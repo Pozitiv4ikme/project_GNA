@@ -63,7 +63,7 @@ public:
         } else {
             // Undirected edge connects both vertices equally
             at(src, edgeIdx) = 1;
-            at(src, edgeIdx) = 1;
+            at(dest, edgeIdx) = 1;
         }
     }
 
@@ -97,4 +97,4 @@ public:
     }
 };
 
-#endif // INCIDENCE_MATRIX_HPP
+#endif
