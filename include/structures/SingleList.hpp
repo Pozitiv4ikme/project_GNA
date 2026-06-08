@@ -2,13 +2,7 @@
 #define SINGLELIST_HPP
 
 template <typename T>
-class SingleList
-{
-private:
-    Node *head; // pointer to the first element in the list
-    Node *tail; // pointer to the last element in the list
-    int current_size;
-
+class SingleList {
 public:
     // algorithms can iterate directly via node pointers in O(1)
     struct Node
@@ -19,32 +13,13 @@ public:
         Node(const T &value) : data(value), next(nullptr) {}
     };
 
-    SingleList() : head(nullptr), tail(nullptr), current_size(0) {}
+private:
+    Node *head; // pointer to the first element in the list
+    Node *tail; // pointer to the last element in the list
+    int current_size;
 
-    // Copy constructor
-    SingleList(const SingleList& other) : head(nullptr), tail(nullptr), current_size(0) {
-        Node* current = other.head;
-        while (current != nullptr) {
-            push_back(current->data);
-            current = current->next;
-        }
-    }
-
-    // Assignment operator
-    SingleList& operator=(const SingleList& other) {
-        if (this != &other) {
-            clear();
-            Node* current = other.head;
-            while (current != nullptr) {
-                push_back(current->data);
-                current = current->next;
-            }
-        }
-        return *this;
-    }
-
-    ~SingleList()
-    {
+public:
+    void clear() {
         Node *current = head; // start from the head of the list
         while (current != nullptr)
         {
@@ -62,18 +37,7 @@ public:
         current_size = 0;
     }
 
-    int size() const
-    {
-        return current_size;
-    }
-
-    Node* getHead() const 
-    {
-        return head;
-    }
-
-    void push_back(const T &value)
-    {
+    void push_back(const T &value) {
         Node *new_node = new Node(value);
 
         // if the list is empty, new node becomes both head and tail
@@ -90,8 +54,44 @@ public:
         current_size++;
     }
 
-    T &operator[](int index)
+    Node* getHead() const {
+        return head;
+    }
+
+    SingleList() : head(nullptr), tail(nullptr), current_size(0) {}
+
+    // Copy constructor
+    SingleList(const SingleList& other) : head(nullptr), tail(nullptr), current_size(0) {
+        Node* current = other.head;
+        while (current != nullptr) {
+            push_back(current->data);
+            current = current->next;
+        }
+    }
+
+    ~SingleList() 
     {
+        clear();
+    }
+
+    // Assignment operator
+    SingleList& operator=(const SingleList& other) {
+        if (this != &other) {
+            clear();
+            Node* current = other.head;
+            while (current != nullptr) {
+                push_back(current->data);
+                current = current->next;
+            }
+        }
+        return *this;
+    }
+
+    int size() const {
+        return current_size;
+    }
+
+    T &operator[](int index) {
         if (index < 0 || index >= current_size)
         {
             throw std::out_of_range("Index out of range"); // throw exception if index is out of bounds
@@ -106,5 +106,4 @@ public:
         return current->data; // return reference to the data of element
     }
 };
-
 #endif
