@@ -1,25 +1,42 @@
 #include <iostream>
-#include "representation/IncidenceMatrix.hpp"
-#include "representation/SuccessorList.hpp"
-#include "data/GraphParser.hpp"
+#include "Parameters.h"
+#include "SingleFileMode.hpp"
 
-int main() {
-    std::cout << "Testing Graph Parser...\n";
+using namespace Parameters;
+using namespace std;
 
-    std::string testFile = "input.txt";
-    bool isDirected = false;
-
-    // Test matrix loading
-    IncidenceMatrix matrix;
-    if (GraphParser::loadFromFile(testFile, matrix, isDirected)) {
-        matrix.print();
+int main(int argc, char **argv) {
+    int result = -1;
+    
+    // Checking if we pass any arguments besides the program name
+    if (argc > 1) {
+        // Cut argv[0] and pass only real parameters to the library as verified in Project 1
+        result = readParameters(argc - 1, argv + 1);
+    } else {
+        cerr << "Please provide arguments. Try running with --help" << endl;
+        Parameters::help();
+        return 1;
     }
 
-    // Test list loading
-    SuccessorList list;
-    if (GraphParser::loadFromFile(testFile, list, isDirected)) {
-        list.print();
-    }
+    if (result == 0) {
+        if (runMode == RunModes::help) {
+            Parameters::help();
+            return 0; 
+        }
 
+        // single file verification mode 
+        if (runMode == RunModes::singleFile) {
+            run_single_file_mode();
+        } 
+        // statistics gathering benchmark mode 
+        else if (runMode == RunModes::benchmark) {
+            std::cout << "[INFO] Benchmark mode detected. Execution skeleton is ready.\n";
+            // run_benchmark_mode(); 
+        }
+    } else {
+        cerr << "[ERROR] Initialization parameters could not be processed successfully.\n";
+        return 1;
+    }
+    
     return 0;
 }
