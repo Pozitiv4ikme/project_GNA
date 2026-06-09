@@ -70,35 +70,40 @@ public:
     int getVerticesCount() const { return n_vertices; }
     int getEdgesCount() const { return n_edges; }
 
+    int getEdgeWeight(int edgeIdx) const {
+        if (edgeIdx < 0 || edgeIdx >= n_edges) return 0;
+        return additional_weights_arr[edgeIdx];
+    }
+
     // Prints the matrix to console
-    void print() const {
+    void print(std::ostream& out = std::cout) const {
         const int cellWidth = 6; // width for each cell in the output
-        std::cout << "\n========================================\n";
-        std::cout << "  INCIDENCE MATRIX REPRESENTATION\n";
-        std::cout << "  Type: " << (isDirected ? "Directed" : "Undirected") << "\n";
-        std::cout << "  Vertices: " << n_vertices << ", Edges: " << n_edges << "\n";
-        std::cout << "========================================\n";
+        out << "\n========================================\n";
+        out << "  INCIDENCE MATRIX REPRESENTATION\n";
+        out << "  Type: " << (isDirected ? "Directed" : "Undirected") << "\n";
+        out << "  Vertices: " << n_vertices << ", Edges: " << n_edges << "\n";
+        out << "========================================\n";
 
         // setw is used to align the output in columns, making it easier to read
-        std::cout << std::setw(12) << "Vert\\Edge";
+        out << std::setw(12) << "Vert\\Edge";
         for (int e = 0; e < n_edges; ++e) {
-            std::cout << std::setw(cellWidth) << "e" + std::to_string(e);
+            out << std::setw(cellWidth) << "e" + std::to_string(e);
         }
-        std::cout << "\n";
+        out << "\n";
 
         for (int v = 0; v < n_vertices; ++v) {
-            std::cout << std::setw(12) << "v" + std::to_string(v);
+            out << std::setw(12) << "v" + std::to_string(v);
             for (int e = 0; e < n_edges; ++e) {
-                std::cout << std::setw(cellWidth) << at(v, e);
+                out << std::setw(cellWidth) << at(v, e);
             }
-            std::cout << "\n";
+            out << "\n";
         }
 
-        std::cout << std::setw(12) << "Weights:";
+        out << std::setw(12) << "Weights:";
         for (int e = 0; e < n_edges; ++e) {
-            std::cout << std::setw(cellWidth) << additional_weights_arr[e];
+            out << std::setw(cellWidth) << additional_weights_arr[e];
         }
-        std::cout << "\n========================================\n";
+        out << "\n========================================\n";
     }
 };
 

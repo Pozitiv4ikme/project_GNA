@@ -2,28 +2,21 @@
 #define SINGLEFILEMODE_HPP
 
 #include <iostream>
+#include <fstream>
 #include <string>
 #include "Parameters.h"
 #include "ParamtersUtils.hpp"
-#include "IncidenceMatrix.hpp"
-#include "SuccessorList.hpp"
-#include "GraphParser.hpp"
-
-// forward declaration for the algorithm executor which will be implemented in future 
-// for now using maybe_unused attribute to avoid warnings
-template <typename GraphRepresentation>
-bool run_selected_graph_algorithm([[maybe_unused]] GraphRepresentation& graph) {
-    // temporary stub
-    std::cout << "[Dispatcher] Algorithm stub executed successfully.\n";
-    return true; 
-}
+#include "representation/IncidenceMatrix.hpp"
+#include "representation/SuccessorList.hpp"
+#include "data/GraphParser.hpp"
+#include "AlgorithmDispatcher.hpp"
 
 // universal function to execute the whole graph processing pipeline for a given representation type
 template <typename GraphRepresentation>
 void execute_graph_pipeline(const std::string& repsentationName) {
     GraphRepresentation graph;
 
-    // MST uses undirected graphs, SP and MF use directed graphs
+    // MST uses undirected graphs, SP and MF use directed graphs (Point 12-d)
     bool isDirected = (Parameters::problem != Parameters::Problems::mst);
 
     std::cout << "\n----------------------------------------\n";
@@ -34,19 +27,42 @@ void execute_graph_pipeline(const std::string& repsentationName) {
     // attempt to load the file into the current representation template
     if (GraphParser::loadFromFile(Parameters::inputFile, graph, isDirected)) {
         
-        // print loaded graph state for verification before running algorithms
+        // 1. Output everything to CONSOLE first
         std::cout << "[INFO] Graph successfully loaded. Current representation state:";
-        graph.print();
+        graph.print(std::cout); // Passing std::cout explicitly
 
         std::cout << "\n[INFO] Running task: " << problem_to_string(Parameters::problem) << "\n";
         std::cout << "[INFO] Selected execution target: " << algorithm_to_string(Parameters::algorithm) << "\n";
         
-        // run selected algorithm(s)
-        bool success = run_selected_graph_algorithm<GraphRepresentation>(graph);
+        // run selected algorithm(s) and print solution to console
+        bool success = run_selected_graph_algorithm<GraphRepresentation>(graph, std::cout);
         
-        if (success) {
-            std::cout << "[SUCCESS] Finished processing pipeline for " << repsentationName << ".\n";
-        } else {
+        // 2. Output exactly the same structure and solution to FILE (Instructor's Requirement)
+        if (success && !Parameters::outputFile.empty()) {
+            std::ofstream outFile(Parameters::outputFile, std::ios::app); // Append to file each time in single mode
+            
+            if (outFile.is_open()) {
+                outFile << "========================================\n";
+                outFile << "        SINGLE FILE MODE REPORT        \n";
+                outFile << "========================================\n";
+                outFile << "Problem Task: " << problem_to_string(Parameters::problem) << "\n";
+                outFile << "Selected Algorithm: " << algorithm_to_string(Parameters::algorithm) << "\n";
+                outFile << "Input Source File: " << Parameters::inputFile << "\n";
+                
+                // Write graph topology structure to file
+                graph.print(outFile);
+                
+                // Write computed algorithm solution details to file
+                run_selected_graph_algorithm<GraphRepresentation>(graph, outFile);
+                
+                outFile.close();
+                std::cout << "[SUCCESS] Results successfully written to file: " << Parameters::outputFile << "\n";
+            } else {
+                std::cerr << "[ERROR] Could not open or create output file: " << Parameters::outputFile << "\n";
+            }
+        }
+
+        if (!success) {
             std::cout << "[ERROR] Execution failed for representation: " << repsentationName << ".\n";
         }
     } else {
@@ -60,13 +76,18 @@ void run_single_file_mode() {
     std::cout << "        SINGLE FILE MODE ACTIVATED      \n";
     std::cout << "========================================\n";
     
-    // check if parameters are properly set before proceeding
     if (Parameters::problem == Parameters::Problems::undefined) {
         std::cerr << "[ERROR] No problem type specified. Aborting single file mode.\n";
         return;
     }
 
-    // handle execution based on selected graph structure, allowing for multiple representations if 'allStructures' is selected
+    // сlear the output file ONCE at the very beginning of the application run
+    if (!Parameters::outputFile.empty()) {
+        std::ofstream clearFile(Parameters::outputFile, std::ios::out);
+        // щpening and immediately closing with std::ios::out ensures a fresh start
+        clearFile.close(); 
+    }
+
     if (Parameters::structure == Parameters::Structures::incidenceMatrix) {
         execute_graph_pipeline<IncidenceMatrix>("Incidence Matrix");
     } 

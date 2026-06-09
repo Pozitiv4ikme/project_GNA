@@ -51,23 +51,23 @@ class SuccessorList {
         int getVerticesCount() const { return number_of_vertices; }
         int getEdgesCount() const { return number_of_edges; }
 
-        void print() const {
-            std::cout << "\n========================================\n";
-            std::cout << "  SUCCESSOR LIST REPRESENTATION\n";
-            std::cout << "  Type: " << (is_directed ? "Directed" : "Undirected") << "\n";
-            std::cout << "  Vertices: " << number_of_vertices << ", Edges: " << number_of_edges << "\n";
-            std::cout << "========================================\n";
+        void print(std::ostream& out = std::cout) const {
+            out << "\n========================================\n";
+            out << "  SUCCESSOR LIST REPRESENTATION\n";
+            out << "  Type: " << (is_directed ? "Directed" : "Undirected") << "\n";
+            out << "  Vertices: " << number_of_vertices << ", Edges: " << number_of_edges << "\n";
+            out << "========================================\n";
 
             for (int v = 0; v < number_of_vertices; ++v) {
-                std::cout << "v" << v << " ---> ";
+                out << "v" << v << " ---> ";
                 auto* current = successors[v].getHead();
                 while (current != nullptr) {
-                    std::cout << "[Target: v" << current->data.target << ", W: " << current->data.weight << "] -> ";
+                    out << "[Target: v" << current->data.target << ", W: " << current->data.weight << "] -> ";
                     current = current->next;
                 }
-                std::cout << "NULL\n";
+                out << "NULL\n";
             }
-            std::cout << "========================================\n";
+            out << "========================================\n";
         }
 };
 
