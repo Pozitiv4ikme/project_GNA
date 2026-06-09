@@ -72,28 +72,33 @@ public:
 
     // Prints the matrix to console
     void print() const {
-        const int cellWidth = 4; // width for each cell in the output
-        std::cout << "\n--- Incidence Matrix ---\n";
+        const int cellWidth = 6; // width for each cell in the output
+        std::cout << "\n========================================\n";
+        std::cout << "  INCIDENCE MATRIX REPRESENTATION\n";
+        std::cout << "  Type: " << (isDirected ? "Directed" : "Undirected") << "\n";
+        std::cout << "  Vertices: " << n_vertices << ", Edges: " << n_edges << "\n";
+        std::cout << "========================================\n";
 
-        std::cout << std::setw(10) << "Vert\\Edge";
+        // setw is used to align the output in columns, making it easier to read
+        std::cout << std::setw(12) << "Vert\\Edge";
         for (int e = 0; e < n_edges; ++e) {
             std::cout << std::setw(cellWidth) << "e" + std::to_string(e);
         }
         std::cout << "\n";
 
         for (int v = 0; v < n_vertices; ++v) {
-            std::cout << std::setw(10) << "v" + std::to_string(v);
+            std::cout << std::setw(12) << "v" + std::to_string(v);
             for (int e = 0; e < n_edges; ++e) {
                 std::cout << std::setw(cellWidth) << at(v, e);
             }
             std::cout << "\n";
         }
 
-        std::cout << std::setw(10) << "Weights:";
+        std::cout << std::setw(12) << "Weights:";
         for (int e = 0; e < n_edges; ++e) {
             std::cout << std::setw(cellWidth) << additional_weights_arr[e];
         }
-        std::cout << "\n";
+        std::cout << "\n========================================\n";
     }
 };
 

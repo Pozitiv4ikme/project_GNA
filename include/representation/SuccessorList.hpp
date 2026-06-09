@@ -52,16 +52,22 @@ class SuccessorList {
         int getEdgesCount() const { return number_of_edges; }
 
         void print() const {
-            std::cout << "\n--- Successor List ---\n";
+            std::cout << "\n========================================\n";
+            std::cout << "  SUCCESSOR LIST REPRESENTATION\n";
+            std::cout << "  Type: " << (is_directed ? "Directed" : "Undirected") << "\n";
+            std::cout << "  Vertices: " << number_of_vertices << ", Edges: " << number_of_edges << "\n";
+            std::cout << "========================================\n";
+
             for (int v = 0; v < number_of_vertices; ++v) {
                 std::cout << "v" << v << " ---> ";
                 auto* current = successors[v].getHead();
                 while (current != nullptr) {
-                    std::cout << "[Target: v" << current->data.target << ", W: " << current->data.weight << "] ";
+                    std::cout << "[Target: v" << current->data.target << ", W: " << current->data.weight << "] -> ";
                     current = current->next;
                 }
                 std::cout << "NULL\n";
             }
+            std::cout << "========================================\n";
         }
 };
 
