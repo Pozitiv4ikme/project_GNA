@@ -1,42 +1,68 @@
 #include <iostream>
 #include "Parameters.h"
-#include "SingleFileMode.hpp"
+#include "representation/IncidenceMatrix.hpp"
+#include "representation/SuccessorList.hpp"
+#include "AlgorithmDispatcher.hpp"
+#include "data/GraphGenerator.hpp" // Adjust path if your generator is in another folder
 
-using namespace Parameters;
-using namespace std;
+// Define external variables from Parameters.h to satisfy the linker
+// (Normally initialized by the teacher's library, but we mock them here for testing)
+namespace Parameters {
+    RunModes runMode = RunModes::singleFile;
+    Problems problem = Problems::mst;
+    Structures structure = Structures::allStructures;
+    std::string inputFile = "";
+    std::string outputFile = ""; // Keep empty so SingleFileMode skips writing file during this test
+    std::string resultsFile = "";
+    int vertexStart = 0;
+    int vertexEnd = 0;
+    int vertexCount = 0;
+    int density = 0;
+    int iterations = 1;
+}
 
-int main(int argc, char **argv) {
-    int result = -1;
+void test_directed_graph_generation() {
+    std::cout << "\n>>> TEST 2: DIRECTED GRAPH GENERATION & SHORTEST PATH (BELLMAN-FORD) <<<\n";
     
-    // Checking if we pass any arguments besides the program name
-    if (argc > 1) {
-        // Cut argv[0] and pass only real parameters to the library as verified in Project 1
-        result = readParameters(argc - 1, argv + 1);
-    } else {
-        cerr << "Please provide arguments. Try running with --help" << endl;
-        Parameters::help();
-        return 1;
+    int vertices = 5;
+    int densityPercent = 75; // 75% density target
+    bool isDirected = true;   // Directed graph for SP
+
+    // 1. Generate the random graph data instance
+    DynamicArray<GeneratedEdge> rawEdges = GraphGenerator::generateRandomConnectedGraph(vertices, densityPercent, isDirected);
+
+    // 2. Initialize and populate structures
+    IncidenceMatrix matrix;
+    matrix.initialize(vertices, rawEdges.size(), isDirected);
+    SuccessorList list;
+    list.initialize(vertices, rawEdges.size(), isDirected);
+
+    for (size_t i = 0; i < rawEdges.size(); ++i) {
+        matrix.addEdge(i, rawEdges[i].src, rawEdges[i].dest, rawEdges[i].weight);
+        list.addEdge(i, rawEdges[i].src, rawEdges[i].dest, rawEdges[i].weight);
     }
 
-    if (result == 0) {
-        if (runMode == RunModes::help) {
-            Parameters::help();
-            return 0; 
-        }
+    // 3. Print both representations
+    matrix.print(std::cout);
+    list.print(std::cout);
 
-        // single file verification mode 
-        if (runMode == RunModes::singleFile) {
-            run_single_file_mode();
-        } 
-        // statistics gathering benchmark mode 
-        else if (runMode == RunModes::benchmark) {
-            std::cout << "[INFO] Benchmark mode detected. Execution skeleton is ready.\n";
-            // run_benchmark_mode(); 
-        }
-    } else {
-        cerr << "[ERROR] Initialization parameters could not be processed successfully.\n";
-        return 1;
-    }
+    // 4. Setup algorithm parameters (Path from vertex 0 to vertex 4)
+    Parameters::problem = Parameters::Problems::sp;
+    Parameters::algorithm = Parameters::Algorithms::bellmanFord;
+    Parameters::vertexStart = 0;
+    Parameters::vertexEnd = 4;
+
+    // 5. Execute algorithm
+    std::cout << "\n[RUN] Running Bellman-Ford on Incidence Matrix:\n";
+    run_selected_graph_algorithm(matrix, std::cout);
+
+    std::cout << "\n[RUN] Running Bellman-Ford on Successor List:\n";
+    run_selected_graph_algorithm(list, std::cout);
+}
+
+int main() {
+    // Run both test scenarios sequentially
+    test_directed_graph_generation();
     
     return 0;
 }
