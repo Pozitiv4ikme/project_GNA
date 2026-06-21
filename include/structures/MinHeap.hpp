@@ -82,6 +82,11 @@ public:
         // move the last element to the root position and shrink the array size
         min_heap[0] = min_heap[min_heap.size() - 1];
         min_heap.pop_back();
+
+        // restoring the properties of a heap
+        if (!empty()) {
+            heapifyDown(0);
+        }
     }
 };
 

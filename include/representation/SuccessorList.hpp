@@ -4,7 +4,15 @@
 #include <iostream>
 #include "structures/DynamicArray.hpp"
 #include "structures/SingleList.hpp"
-#include "../GraphEdge.hpp"
+
+// POD (Plain Old Data); container for edge information (target vertex and weight) used in SuccessorList representation
+struct GraphEdge {
+    int target; // destination vertex index 
+    int weight; // weight of the edge
+
+    GraphEdge(): target(0), weight(0) {}
+    GraphEdge(int t, int w): target(t), weight(w) {}
+};
 
 class SuccessorList {
     private:
