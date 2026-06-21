@@ -9,11 +9,15 @@
 #include "algorithms/BellmanFord.hpp"
 #include "algorithms/Prim.hpp"
 #include "algorithms/Dijkstra.hpp"
+#include "algorithms/Kruskal.hpp"
 
 template <typename GraphRepresentation>
 bool run_selected_graph_algorithm(GraphRepresentation& graph, std::ostream& out = std::cout) {
     if (Parameters::problem == Parameters::Problems::mst) {
-        if (Parameters::algorithm == Parameters::Algorithms::prim || 
+        if (Parameters::algorithm == Parameters::Algorithms::kruskal) {
+            run_kruskal_algorithm(graph, out);
+            return true;
+        } else if (Parameters::algorithm == Parameters::Algorithms::prim || 
             Parameters::algorithm == Parameters::Algorithms::allAlgorithms) {
             run_prim_algorithm(graph, out);
             return true;

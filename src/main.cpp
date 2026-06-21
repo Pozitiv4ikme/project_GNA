@@ -7,7 +7,7 @@
 
 namespace Parameters {
     RunModes runMode = RunModes::singleFile;
-    Problems problem = Problems::sp;
+    Problems problem = Problems::mst;
     Structures structure = Structures::allStructures;
     std::string inputFile = "";
     std::string outputFile = ""; // keep empty so SingleFileMode skips writing file during this test
@@ -20,10 +20,10 @@ namespace Parameters {
 }
 
 void test_directed_graph_generation() {
-    std::cout << "\n>>> TEST 1: DIRECTED GRAPH GENERATION & SHORTEST PATH (DIJKSTRA) <<<\n";
+    std::cout << "\n>>> TEST 1: DIRECTED GRAPH GENERATION & MINIMAL SPANNING TREE (KRUSKAL) <<<\n";
     
     int vertices = 5;
-    int densityPercent = 90;
+    int densityPercent = 60;
     bool isDirected = false;
 
     // generate the random graph data instance
@@ -45,16 +45,22 @@ void test_directed_graph_generation() {
     list.print(std::cout);
 
     // setup algorithm parameters
-    Parameters::problem = Parameters::Problems::sp;
-    Parameters::algorithm = Parameters::Algorithms::dijkstra;
-    Parameters::vertexStart = 0;
-    Parameters::vertexEnd = 4;
+    Parameters::problem = Parameters::Problems::mst;
+    Parameters::algorithm = Parameters::Algorithms::kruskal;
 
     // execute algorithm
-    std::cout << "\n[RUN] Running Dijksta on Incidence Matrix:\n";
+    std::cout << "\n[RUN] Running Kruskal on Incidence Matrix:\n";
     run_selected_graph_algorithm(matrix, std::cout);
 
-    std::cout << "\n[RUN] Running Dijkstra on Successor List:\n";
+    std::cout << "\n[RUN] Running Kruskal on Successor List:\n";
+    run_selected_graph_algorithm(list, std::cout);
+
+    Parameters::algorithm = Parameters::Algorithms::prim;
+        // execute algorithm
+    std::cout << "\n[RUN] Running Prim on Incidence Matrix:\n";
+    run_selected_graph_algorithm(matrix, std::cout);
+
+    std::cout << "\n[RUN] Running Prim on Successor List:\n";
     run_selected_graph_algorithm(list, std::cout);
 }
 
