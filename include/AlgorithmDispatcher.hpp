@@ -10,6 +10,7 @@
 #include "algorithms/Prim.hpp"
 #include "algorithms/Dijkstra.hpp"
 #include "algorithms/Kruskal.hpp"
+#include "algorithms/FordFulkerson.hpp"
 
 template <typename GraphRepresentation>
 bool run_selected_graph_algorithm(GraphRepresentation& graph, std::ostream& out = std::cout) {
@@ -31,6 +32,12 @@ bool run_selected_graph_algorithm(GraphRepresentation& graph, std::ostream& out 
         else if (Parameters::algorithm == Parameters::Algorithms::bellmanFord || 
             Parameters::algorithm == Parameters::Algorithms::allAlgorithms) {
             run_bellman_ford_algorithm(graph, Parameters::vertexStart, Parameters::vertexEnd, out);
+            return true;
+        }
+    } else if (Parameters::problem == Parameters::Problems::mf) {
+        if (Parameters::algorithm == Parameters::Algorithms::fordFulkerson || 
+            Parameters::algorithm == Parameters::Algorithms::allAlgorithms) {
+            run_ford_fulkerson_algorithm(graph, Parameters::vertexStart, Parameters::vertexEnd, out);
             return true;
         }
     }

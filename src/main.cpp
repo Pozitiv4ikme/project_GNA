@@ -20,10 +20,10 @@ namespace Parameters {
 }
 
 void test_directed_graph_generation() {
-    std::cout << "\n>>> TEST 1: DIRECTED GRAPH GENERATION & MINIMAL SPANNING TREE (KRUSKAL) <<<\n";
+    std::cout << "\n>>> TEST 1: GRAPH GENERATION & MAX FLOW (FORD-FULKERSON) <<<\n";
     
     int vertices = 5;
-    int densityPercent = 60;
+    int densityPercent = 75;
     bool isDirected = false;
 
     // generate the random graph data instance
@@ -45,22 +45,16 @@ void test_directed_graph_generation() {
     list.print(std::cout);
 
     // setup algorithm parameters
-    Parameters::problem = Parameters::Problems::mst;
-    Parameters::algorithm = Parameters::Algorithms::kruskal;
+    Parameters::problem = Parameters::Problems::mf;
+    Parameters::algorithm = Parameters::Algorithms::fordFulkerson;
+    Parameters::vertexStart = 0;
+    Parameters::vertexEnd = 4;
 
     // execute algorithm
-    std::cout << "\n[RUN] Running Kruskal on Incidence Matrix:\n";
+    std::cout << "\n[RUN] Running Ford-Fulkerson on Incidence Matrix:\n";
     run_selected_graph_algorithm(matrix, std::cout);
 
-    std::cout << "\n[RUN] Running Kruskal on Successor List:\n";
-    run_selected_graph_algorithm(list, std::cout);
-
-    Parameters::algorithm = Parameters::Algorithms::prim;
-        // execute algorithm
-    std::cout << "\n[RUN] Running Prim on Incidence Matrix:\n";
-    run_selected_graph_algorithm(matrix, std::cout);
-
-    std::cout << "\n[RUN] Running Prim on Successor List:\n";
+    std::cout << "\n[RUN] Running Ford-Fulkerson on Successor List:\n";
     run_selected_graph_algorithm(list, std::cout);
 }
 
