@@ -80,6 +80,12 @@ public:
         data[current_size++] = value;
     }
 
+void pop_back() {
+    if (current_size > 0) {
+        current_size--; // simply reduce size, memory remains
+    }
+}
+
     // return reference to the element at the given index
     T &operator[](size_t index)
     {
