@@ -1,65 +1,45 @@
 #include <iostream>
-#include "Parameters.h"
 #include "representation/IncidenceMatrix.hpp"
 #include "representation/SuccessorList.hpp"
-#include "AlgorithmDispatcher.hpp"
-#include "data/GraphGenerator.hpp"
+#include "data/GraphParser.hpp"
+#include "Parameters.h"
+#include "SingleFileMode.hpp"
+#include "BenchmarkMode.hpp"
 
-namespace Parameters {
-    RunModes runMode = RunModes::singleFile;
-    Problems problem = Problems::mst;
-    Structures structure = Structures::allStructures;
-    std::string inputFile = "";
-    std::string outputFile = ""; // keep empty so SingleFileMode skips writing file during this test
-    std::string resultsFile = "";
-    int vertexStart = 0;
-    int vertexEnd = 0;
-    int vertexCount = 0;
-    int density = 0;
-    int iterations = 1;
-}
+using namespace Parameters;
+using namespace std;
 
-void test_directed_graph_generation() {
-    std::cout << "\n>>> TEST 1: GRAPH GENERATION & MAX FLOW (FORD-FULKERSON) <<<\n";
+int main(int argc, char **argv) {
+    int result = -1;
     
-    int vertices = 5;
-    int densityPercent = 75;
-    bool isDirected = false;
-
-    // generate the random graph data instance
-    DynamicArray<GeneratedEdge> rawEdges = GraphGenerator::generateRandomConnectedGraph(vertices, densityPercent, isDirected);
-
-    // initialize and populate structures
-    IncidenceMatrix matrix;
-    matrix.initialize(vertices, rawEdges.size(), isDirected);
-    SuccessorList list;
-    list.initialize(vertices, rawEdges.size(), isDirected);
-
-    for (size_t i = 0; i < rawEdges.size(); ++i) {
-        matrix.addEdge(i, rawEdges[i].src, rawEdges[i].dest, rawEdges[i].weight);
-        list.addEdge(i, rawEdges[i].src, rawEdges[i].dest, rawEdges[i].weight);
+    // Checking if we pass any arguments besides the program name
+    if (argc > 1) {
+        // Cut argv[0] and pass only real parameters to the library as verified in Project 1
+        result = readParameters(argc - 1, argv + 1);
+    } else {
+        cerr << "Please provide arguments. Try running with --help" << endl;
+        Parameters::help();
+        return 1;
     }
 
-    // print both representations
-    matrix.print(std::cout);
-    list.print(std::cout);
+    if (result == 0) {
+        if (runMode == RunModes::help) {
+            Parameters::help();
+            return 0; 
+        }
 
-    // setup algorithm parameters
-    Parameters::problem = Parameters::Problems::mf;
-    Parameters::algorithm = Parameters::Algorithms::fordFulkerson;
-    Parameters::vertexStart = 0;
-    Parameters::vertexEnd = 4;
-
-    // execute algorithm
-    std::cout << "\n[RUN] Running Ford-Fulkerson on Incidence Matrix:\n";
-    run_selected_graph_algorithm(matrix, std::cout);
-
-    std::cout << "\n[RUN] Running Ford-Fulkerson on Successor List:\n";
-    run_selected_graph_algorithm(list, std::cout);
-}
-
-int main() {
-    test_directed_graph_generation();
+        // single file verification mode 
+        if (runMode == RunModes::singleFile) {
+            run_single_file_mode();
+        } 
+        // statistics gathering benchmark mode 
+        else if (runMode == RunModes::benchmark) {
+            run_benchmark_mode(); 
+        }
+    } else {
+        cerr << "[ERROR] Initialization parameters could not be processed successfully.\n";
+        return 1;
+    }
     
     return 0;
 }
