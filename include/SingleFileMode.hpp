@@ -27,44 +27,73 @@ void execute_graph_pipeline(const std::string& repsentationName) {
     // attempt to load the file into the current representation template
     if (GraphParser::loadFromFile(Parameters::inputFile, graph, isDirected)) {
         
-        // 1. Output everything to CONSOLE first
+        // 1. Output graph topology to CONSOLE first
         std::cout << "[INFO] Graph successfully loaded. Current representation state:";
-        graph.print(std::cout); // Passing std::cout explicitly
+        graph.print(std::cout); 
 
         std::cout << "\n[INFO] Running task: " << problem_to_string(Parameters::problem) << "\n";
         std::cout << "[INFO] Selected execution target: " << algorithm_to_string(Parameters::algorithm) << "\n";
         
-        // run selected algorithm(s) and print solution to console
-        bool success = run_selected_graph_algorithm<GraphRepresentation>(graph, std::cout);
-        
-        // 2. Output exactly the same structure and solution to FILE (Instructor's Requirement)
-        if (success && !Parameters::outputFile.empty()) {
-            std::ofstream outFile(Parameters::outputFile, std::ios::app); // Append to file each time in single mode
-            
+        // 2. Output graph topology to FILE once before running algorithms
+        if (!Parameters::outputFile.empty()) {
+            std::ofstream outFile(Parameters::outputFile, std::ios::app); // append mode
             if (outFile.is_open()) {
                 outFile << "========================================\n";
                 outFile << "        SINGLE FILE MODE REPORT        \n";
                 outFile << "========================================\n";
-                outFile << "Problem Task: " << problem_to_string(Parameters::problem) << "\n";
-                outFile << "Selected Algorithm: " << algorithm_to_string(Parameters::algorithm) << "\n";
-                outFile << "Input Source File: " << Parameters::inputFile << "\n";
+                outFile << "Graph Representation: " << repsentationName << "\n";
+                outFile << "Problem Task:         " << problem_to_string(Parameters::problem) << "\n";
+                outFile << "Input Source File:    " << Parameters::inputFile << "\n";
                 
-                // Write graph topology structure to file
-                graph.print(outFile);
-                
-                // Write computed algorithm solution details to file
-                run_selected_graph_algorithm<GraphRepresentation>(graph, outFile);
-                
+                graph.print(outFile); // write structure topology layout
                 outFile.close();
-                std::cout << "[SUCCESS] Results successfully written to file: " << Parameters::outputFile << "\n";
-            } else {
-                std::cerr << "[ERROR] Could not open or create output file: " << Parameters::outputFile << "\n";
             }
         }
 
-        if (!success) {
-            std::cout << "[ERROR] Execution failed for representation: " << repsentationName << ".\n";
+        // helper lambda function to execute a specific algorithm to both console and file
+        auto execute_single_algorithm_target = [&](Parameters::Algorithms specificAlgo) {
+            // temporarily swap global parameter to match current router loop
+            Parameters::Algorithms backupAlgo = Parameters::algorithm;
+            Parameters::algorithm = specificAlgo;
+
+            std::cout << "\n[RUN] Executing: " << algorithm_to_string(specificAlgo) << "...\n";
+            bool success = run_selected_graph_algorithm<GraphRepresentation>(graph, std::cout);
+            
+            // append algorithm solution to the report file if execution succeeded
+            if (success && !Parameters::outputFile.empty()) {
+                std::ofstream outFile(Parameters::outputFile, std::ios::app);
+                if (outFile.is_open()) {
+                    outFile << "\n--- Solution: " << algorithm_to_string(specificAlgo) << " ---\n";
+                    run_selected_graph_algorithm<GraphRepresentation>(graph, outFile);
+                    outFile.close();
+                }
+            }
+
+            // restore global parameters configuration state
+            Parameters::algorithm = backupAlgo;
+        };
+
+        // 3. Routing core execution based on algorithm selection 
+        if (Parameters::algorithm == Parameters::Algorithms::allAlgorithms) {
+            std::cout << "[INFO] 'All Algorithms' option active. Running all matching solvers sequentially.\n";
+            
+            if (Parameters::problem == Parameters::Problems::mst) {
+                execute_single_algorithm_target(Parameters::Algorithms::prim);
+                execute_single_algorithm_target(Parameters::Algorithms::kruskal);
+            } 
+            else if (Parameters::problem == Parameters::Problems::sp) {
+                execute_single_algorithm_target(Parameters::Algorithms::dijkstra);
+                execute_single_algorithm_target(Parameters::Algorithms::bellmanFord);
+            } 
+            else if (Parameters::problem == Parameters::Problems::mf) {
+                execute_single_algorithm_target(Parameters::Algorithms::fordFulkerson);
+            }
+        } else {
+            // execute only the single explicitly requested algorithm target
+            execute_single_algorithm_target(Parameters::algorithm);
         }
+
+        std::cout << "\n[SUCCESS] Finished processing pipeline for " << repsentationName << ".\n";
     } else {
         std::cerr << "[ERROR] Failed to load or initialize graph for: " << repsentationName << ".\n";
     }
@@ -81,10 +110,9 @@ void run_single_file_mode() {
         return;
     }
 
-    // сlear the output file ONCE at the very beginning of the application run
+    // сlear the output file ONCE at the very beginning of the application run to ensure a fresh start
     if (!Parameters::outputFile.empty()) {
         std::ofstream clearFile(Parameters::outputFile, std::ios::out);
-        // щpening and immediately closing with std::ios::out ensures a fresh start
         clearFile.close(); 
     }
 
