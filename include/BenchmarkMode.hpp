@@ -30,17 +30,19 @@ void execute_benchmark_pipeline(const std::string& representationName, Parameter
     Parameters::Algorithms backupAlgorithm = Parameters::algorithm;
     Parameters::algorithm = specificAlgorithm;
 
-    std::ofstream csvFile(Parameters::resultsFile, std::ios::app);
-    if (!csvFile.is_open()) {
-        std::cerr << "[ERROR] Benchmark cannot open results CSV file: " << Parameters::resultsFile << "\n";
-        Parameters::algorithm = backupAlgorithm;
-        return;
-    }
-
-    // write CSV header if the file is freshly created and empty
-    csvFile.seekp(0, std::ios::end);
-    if (csvFile.tellp() == 0) {
-        csvFile << "Date_Time;Problem;Algorithm;Structure;Vertices;Density;Iteration;Time_us\n";
+    {
+        std::ofstream headerFile(Parameters::resultsFile, std::ios::app);
+        if (headerFile.is_open()) {
+            headerFile.seekp(0, std::ios::end);
+            if (headerFile.tellp() == 0) {
+                headerFile << "Date_Time;Problem;Algorithm;Structure;Vertices;Density;Iteration;Time_us\n";
+            }
+            headerFile.close();
+        } else {
+            std::cerr << "[ERROR] Benchmark cannot open results CSV file: " << Parameters::resultsFile << "\n";
+            Parameters::algorithm = backupAlgorithm;
+            return;
+        }
     }
 
     std::cout << "[BENCHMARK] Starting loop: " << algorithm_to_string(specificAlgorithm) 
@@ -92,18 +94,19 @@ void execute_benchmark_pipeline(const std::string& representationName, Parameter
         if (elapsedMicros < minDuration) minDuration = elapsedMicros;
         if (elapsedMicros > maxDuration) maxDuration = elapsedMicros;
 
-        // append this raw single iteration metric line into the CSV spreadsheet
-        csvFile << get_benchmark_timestamp() << ";"
-                << problem_to_string(Parameters::problem) << ";"
-                << algorithm_to_string(specificAlgorithm) << ";"
-                << representationName << ";"
-                << Parameters::vertexCount << ";"
-                << Parameters::density << ";"
-                << i << ";"
-                << elapsedMicros << "\n";
+        std::ofstream csvFile(Parameters::resultsFile, std::ios::app);
+        if (csvFile.is_open()) {
+            csvFile << get_benchmark_timestamp() << ";"
+                    << problem_to_string(Parameters::problem) << ";"
+                    << algorithm_to_string(specificAlgorithm) << ";"
+                    << representationName << ";"
+                    << Parameters::vertexCount << ";"
+                    << Parameters::density << ";"
+                    << i << ";"
+                    << elapsedMicros << "\n";
+            csvFile.close();
+        }
     }
-
-    csvFile.close();
 
     // log compiled average results to console for immediate visibility
     double avgDuration = totalDuration / Parameters::iterations;

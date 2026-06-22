@@ -4,6 +4,8 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <ctime>
+#include <chrono>
 #include "Parameters.h"
 #include "ParamtersUtils.hpp"
 #include "representation/IncidenceMatrix.hpp"
@@ -29,7 +31,7 @@ void execute_graph_pipeline(const std::string& repsentationName) {
         
         // 1. Output graph topology to CONSOLE first
         std::cout << "[INFO] Graph successfully loaded. Current representation state:";
-        graph.print(std::cout); 
+        // graph.print(std::cout);
 
         std::cout << "\n[INFO] Running task: " << problem_to_string(Parameters::problem) << "\n";
         std::cout << "[INFO] Selected execution target: " << algorithm_to_string(Parameters::algorithm) << "\n";
@@ -45,7 +47,7 @@ void execute_graph_pipeline(const std::string& repsentationName) {
                 outFile << "Problem Task:         " << problem_to_string(Parameters::problem) << "\n";
                 outFile << "Input Source File:    " << Parameters::inputFile << "\n";
                 
-                graph.print(outFile); // write structure topology layout
+                // graph.print(outFile); // write structure topology layout
                 outFile.close();
             }
         }
@@ -57,13 +59,25 @@ void execute_graph_pipeline(const std::string& repsentationName) {
             Parameters::algorithm = specificAlgo;
 
             std::cout << "\n[RUN] Executing: " << algorithm_to_string(specificAlgo) << "...\n";
+            
+            auto startTime = std::chrono::high_resolution_clock::now();
+            
             bool success = run_selected_graph_algorithm<GraphRepresentation>(graph, std::cout);
             
-            // append algorithm solution to the report file if execution succeeded
+            auto endTime = std::chrono::high_resolution_clock::now();
+            
+            auto elapsedMicros = std::chrono::duration_cast<std::chrono::microseconds>(endTime - startTime).count();
+
+            if (success) {
+                std::cout << "[TIME] Pure execution time: " << elapsedMicros << " us\n";
+            }
+            
+            // Append algorithm solution to the report file if execution succeeded
             if (success && !Parameters::outputFile.empty()) {
                 std::ofstream outFile(Parameters::outputFile, std::ios::app);
                 if (outFile.is_open()) {
                     outFile << "\n--- Solution: " << algorithm_to_string(specificAlgo) << " ---\n";
+                    outFile << "Execution Time: " << elapsedMicros << " us\n"; // Пишемо час у звітний файл
                     run_selected_graph_algorithm<GraphRepresentation>(graph, outFile);
                     outFile.close();
                 }
